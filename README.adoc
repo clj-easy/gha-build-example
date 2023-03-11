@@ -6,14 +6,14 @@ If successful, we might even leave this repo around as an example/reference for 
 == Build Goals
 
 We want tests to be run on pushes everywhere (forks or not) so that folks can verify their work before submitting PRs.
-When it comes time to publish a release, we want that triggered on a version tag.
+When it comes time to publish a release, we want that to be triggered on a version tag.
 
 Trigger tests for:
 
-* push to master or any other branch
+* push to master or any other branch [verified]
 * push to fork of this repo
 * push to PR
-** from local branch
+** from local branch [verified]
 ** from fork
 
 Some specific desired behaviour:
@@ -28,7 +28,7 @@ Notes:
 
 GitHub actions allows some control over what invokes a workflow.
 But some controls are only available at the job level within a workflow.
-So sometimes we'll trigger at workflow but skip all the jobs in that workflow.
+So sometimes we'll trigger a workflow but skip all the jobs in that workflow.
 Just because that's the way GitHub Actions currenltly works.
 
 Scenarios:
