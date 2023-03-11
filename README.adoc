@@ -30,3 +30,14 @@ GitHub actions allows some control over what invokes a workflow.
 But some controls are only available at the job level within a workflow.
 So sometimes we'll trigger at workflow but skip all the jobs in that workflow.
 Just because that's the way GitHub Actions currenltly works.
+
+Scenarios:
+
+A commit push should trigger tests. No need to explain more here.
+
+An automated publish commit push (one that bumps version in files) should not trigger tests.
+The automation will use the convention of starting commit messages with `publish:`.
+
+A automated publish version tag push should trigger the publish workflow, which should trigger tests workflow.
+The version tag should not directly trigger a tests flow.
+Version tag convention is to start tag with `v`.
