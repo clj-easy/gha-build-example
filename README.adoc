@@ -14,7 +14,7 @@ Trigger tests for:
 * push to fork of this repo [gha must be enabled for fork]
 * push to PR
 ** from local branch [verified]
-** from fork [what happens here?]
+** from fork [nope, does not work, runs tests on fork, but does not run tests as checks for PR]
 
 Some specific desired behaviour:
 
