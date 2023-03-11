@@ -28,7 +28,7 @@ Notes:
 
 GitHub actions allows some control over what invokes a workflow.
 But some controls are only available at the job level within a workflow.
-So sometimes we'll trigger at workflow but skip all the jobs in that workflow.
+So sometimes we'll trigger a workflow but skip all the jobs in that workflow.
 Just because that's the way GitHub Actions currenltly works.
 
 Scenarios:
