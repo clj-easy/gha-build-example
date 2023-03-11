@@ -10,10 +10,10 @@ When it comes time to publish a release, we want that to be triggered on a versi
 
 Trigger tests for:
 
-* push to master or any other branch
+* push to master or any other branch [verified]
 * push to fork of this repo
 * push to PR
-** from local branch
+** from local branch [verified]
 ** from fork
 
 Some specific desired behaviour:
