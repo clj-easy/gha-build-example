@@ -1,0 +1,32 @@
+= GHA Build Example
+
+A place to experiment with getting GitHub Actions to build like we'd like it to.
+If successful, we might even leave this repo around as an example/reference for those with similar build tastes.
+
+== Build Goals
+
+We want tests to be run on pushes everywhere (forks or not) so that folks can verify their work before submitting PRs.
+When it comes time to publish a release, we want that triggered on a version tag.
+
+Trigger tests for:
+
+* push to master or any other branch
+* push to fork of this repo
+* push to PR
+** from local branch
+** from fork
+
+Some specific desired behaviour:
+
+1. Trigger tests to run only once when working from a PR.
+We need the tests to be perceived by GitHub as checks for the PR.
+2. On publish, triggered by a version tag push, trigger a test run, then follow that up with a release work.
+An additional test run should not be triggered here.
+3. Publish work should not be executed when on a fork.
+
+Notes:
+
+GitHub actions allows some control over what invokes a workflow.
+But some controls are only available at the job level within a workflow.
+So sometimes we'll trigger at workflow but skip all the jobs in that workflow.
+Just because that's the way GitHub Actions currenltly works.
