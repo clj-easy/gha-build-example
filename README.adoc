@@ -6,7 +6,7 @@ If successful, we might even leave this repo around as an example/reference for 
 == Build Goals
 
 We want tests to be run on pushes everywhere (forks or not) so that folks can verify their work before submitting PRs.
-When it comes time to publish a release, we want that triggered on a version tag.
+When it comes time to publish a release, we want that to be triggered on a version tag.
 
 Trigger tests for:
 
