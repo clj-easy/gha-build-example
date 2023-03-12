@@ -6,8 +6,14 @@ If successful, we might even leave this repo around as an example/reference for 
 == Current Snags
 
 === GHA must be enabled for forks
-1. GitHub Actions must be enabled by the user for forks.
+GitHub Actions must be enabled by the user for forks.
+
 Problematic? Dunno, maybe, maybe not, but good to note.
+
+Our premise that folks are typically using GHA on forks to verify before submitting PRs might be incorrect.
+But that does not invalidate our approach.
+They could be using GHA on forks.
+If they want to.
 
 === Removing `synchronize` from `pull_request` does not work for forked PRs
 I removed `synchronize` from `pull_request` and this gives desired test workflow triggering for local branches/PRs.
@@ -19,7 +25,10 @@ So it seems we'd like:
 Can we express that?
 I think we need to restore `synchronize` `pull_request` activity.
 
-So what are asking for?
+So what are asking for, really?
+If a PR has been opened we do not need a duplicate test run.
+For a forked PR, the PR checks seem to need to be from pull_request synchronize.
+For a local branch PR, the PR checks are corallated (and duplicated) from pull_request synchronize and push.
 
 Instead of removing `synchronize` can we suppress the `push` trigger when in a PR?
 Dunno, will explore more.
