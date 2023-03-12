@@ -48,7 +48,7 @@ jobs:
         gh search prs ${{ github.sha }}  --json number --jq 'first | .number'
         echo "learn some gha expressions syntax maybe"
         echo "prnumbers: ${{ env.PR_NUMBERS }}"
-        echo "skip tests?: ${{ github.event_name == 'push' && startsWith( env.PR_NUMBERS '[:number')}}"
+        echo "skip tests?: ${{ github.event_name == 'push' && startsWith(env.PR_NUMBERS '[:number') }}"
 
     - name: Run tests
       run: |
