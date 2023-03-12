@@ -25,11 +25,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Does gh pr help at all?
+    - name: Does gh search prs help at all?
       env:
         GITHUB_TOKEN: $${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh pr view --json 'baseRefName,headRefName,number,isCrossRepository'
+        gh search prs ${{ github.sha }} --json number
 
     - name: Run tests
       run: |
