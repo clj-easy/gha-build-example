@@ -40,8 +40,6 @@ jobs:
         echo "pr number? github.event.number ${{ github.event.number }}"
         echo "search prs"
         gh search prs ${{ github.sha }} --json number
-        echo "pr view"
-        gh pr view --json 'baseRefName,headRefName,number,isCrossRepository'
 
     - name: Run tests
       run: |
