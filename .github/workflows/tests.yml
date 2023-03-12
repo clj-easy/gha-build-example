@@ -41,6 +41,9 @@ jobs:
         echo "pr number? github.event.number ${{ github.event.number }}"
         echo "search prs"
         gh search prs ${{ github.sha }} --json number
+        echo "learn some jq, maybe"
+        gh search prs ${{ github.sha }}  --json number --jq 'first | .number'
+
 
     - name: Run tests
       run: |
