@@ -37,8 +37,6 @@ Trigger tests for:
 ** from local branch [verified]
 ** from fork [nope, does not work, runs tests on fork, but does not run tests as checks for PR]
 
-
-
 Some specific desired behaviour:
 
 1. Trigger tests to run only once when working from a PR.
@@ -53,6 +51,14 @@ GitHub actions allows some control over what invokes a workflow.
 But some controls are only available at the job level within a workflow.
 So sometimes we'll trigger a workflow but skip all the jobs in that workflow.
 Just because that's the way GitHub Actions currenltly works.
+
+The duplicate test run on PR is uglier when the PR is from a local branch.
+In this case both test runs are attached as checks to the PR.
+
+If the PR is from a fork, we still have the duplicate test run, but the fork test run is not part of the checks.
+
+We can determine if GHA is running from a fork via: `github.event.pull_request.head.repo.fork`.
+Not sure if this will be helpful.
 
 Scenarios:
 
