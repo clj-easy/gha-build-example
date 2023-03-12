@@ -37,6 +37,7 @@ jobs:
       run: |
         echo "github.event_name: ${{ github.event_name }}"
         echo "github.sha: ${{ github.sha}}"
+        echo "pr number? github.event.number ${{ github.event.number }}"
         echo "search prs"
         gh search prs ${{ github.sha }} --json number
 
