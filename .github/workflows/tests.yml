@@ -49,7 +49,7 @@ jobs:
         echo "learn some gha expressions syntax maybe"
         echo "prnumbers: ${{ env.PR_NUMBERS }}"
         echo "push event?: ${{ github.event_name == 'push' }}"
-        echo "prnumbers?: ${{ contains( env.PR_NUMBERS, 'number' }}"
+        echo "prnumbers?: ${{ contains( env.PR_NUMBERS, 'number') }}"
 
     - name: Run tests
       run: |
