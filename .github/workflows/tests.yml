@@ -32,6 +32,8 @@ jobs:
         fetch-depth: 0
 
     - name: pr numbers
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: echo "PR_NUMBERS=$(gh search prs ${{ github.sha }} --json number)" >> $$GITHUB_ENV
 
     - name: Does gh cli help at all?
