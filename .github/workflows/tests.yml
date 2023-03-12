@@ -32,6 +32,8 @@ jobs:
         fetch-depth: 0
 
     - name: Does gh search prs help at all?
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         echo "github.sha: ${{ github.sha}}"
         gh search prs ${{ github.sha }} --json number
