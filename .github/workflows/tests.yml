@@ -34,7 +34,7 @@ jobs:
     - name: pr numbers
       env:
         GH_TOKEN: ${{ github.token }}
-      run: echo "PR_NUMBERS=$(gh search prs ${{ github.sha }} --json number)" >> $$GITHUB_ENV
+      run: echo "PR_NUMBERS=$(gh search prs ${{ github.sha }} --json number | cat)" >> $$GITHUB_ENV
 
     - name: Does gh cli help at all?
       env:
