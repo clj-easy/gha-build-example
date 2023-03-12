@@ -35,6 +35,7 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
+        echo "Are we on a fork?: ${{ github.event.pull_request.head.repo.fork }}"
         echo "github.event_name: ${{ github.event_name }}"
         echo "github.sha: ${{ github.sha}}"
         echo "pr number? github.event.number ${{ github.event.number }}"
@@ -44,4 +45,3 @@ jobs:
     - name: Run tests
       run: |
         echo "Testing 123"
-        echo "Are we on a fork?: ${{ github.event.pull_request.head.repo.fork }}"
