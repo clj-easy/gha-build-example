@@ -31,7 +31,20 @@ For a forked PR, the PR checks seem to need to be from pull_request synchronize.
 For a local branch PR, the PR checks are corallated (and duplicated) from pull_request synchronize and push.
 
 Instead of removing `synchronize` can we suppress the `push` trigger when in a PR?
-Dunno, will explore more.
+
+Maybe.
+
+I can use `gh`, the github command line tool to search if the current commit sha is part of a PR.
+So if the triggering event is `push` and the sha is in a PR, tests should be skipped.
+
+I've tried doing this at the step level.
+Ex. Job step 1 sets a var that step 2 consults to determine if it should run.
+
+This is interesting but working at the step level is not terribly useful.
+Next up: I'll try skipping at the job level.
+Does GitHub Actions allow for that?
+
+Maybe.
 
 == Build Goals
 
