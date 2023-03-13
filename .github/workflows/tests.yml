@@ -50,6 +50,6 @@ jobs:
         echo "pr number? github.event.number ${{ github.event.number }}"
 
     - name: Run tests
-      if: ${{ steps.checks.outputs.push_in_pr != "true" }}
+      if: ${{ steps.checks.outputs.push_in_pr != 'true' }}
       run: |
         echo "Testing 123"
