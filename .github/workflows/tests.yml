@@ -31,27 +31,26 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Install clojure
+      uses: DeLaGuardo/setup-clojure@10.2
+      with:
+        bb: 'latest'
+
     - name: pr numbers
+      id: checks
       env:
         GH_TOKEN: ${{ github.token }}
-      run: echo "PR_NUMBERS=$(gh search prs ${{ github.sha }} --json number | cat)" >> $GITHUB_ENV
+      run: echo "push-in-pr=$(bb script/ci-is-push-and-pr.clj $${ github.event.name}} ${{ github.sha }}" >> $GITHUB_OUTPUT
 
     - name: Does gh cli help at all?
-      env:
-        GH_TOKEN: ${{ github.token }}
       run: |
+        echo "steps.checks.push-in-pr: ${{ steps.checks.push-in-pr }}"
         echo "Are we on a fork?: ${{ github.event.pull_request.head.repo.fork }}"
         echo "github.event_name: ${{ github.event_name }}"
         echo "github.sha: ${{ github.sha}}"
         echo "pr number? github.event.number ${{ github.event.number }}"
-        echo "search prs"
-        gh search prs ${{ github.sha }} --json number
-        echo "learn some gha expressions syntax maybe"
-        echo "prnumbers: ${{ env.PR_NUMBERS }}"
-        echo "push event?: ${{ github.event_name == 'push' }}"
-        echo "prnumbers?: ${{ contains( env.PR_NUMBERS, 'number') }}"
-        echo "skip tests? ${{ github.event_name == 'push' && contains( env.PR_NUMBERS, 'number') }}"
 
     - name: Run tests
+      if: ${{ !steps.checks.push-in-pr }}
       run: |
         echo "Testing 123"
