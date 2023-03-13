@@ -46,6 +46,13 @@ Does GitHub Actions allow for that?
 
 Maybe.
 
+TODO:
+1. Currently when merging a PR to master, I'm skipping tests.
+The event is push and th commit is part of PR.
+So I'd need to tweak that.
+We also want to run tests on PR merge.
+
+
 == Build Goals
 
 We want tests to be run on pushes everywhere (forks or not) so that folks can verify their work before submitting PRs.
