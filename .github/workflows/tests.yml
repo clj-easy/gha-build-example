@@ -40,7 +40,7 @@ jobs:
       id: checks
       env:
         GH_TOKEN: ${{ github.token }}
-      run: echo "push-in-pr=$(bb script/ci-is-push-and-pr.clj $${ github.event.name}} ${{ github.sha }}" >> $GITHUB_OUTPUT
+      run: echo "push-in-pr=$(bb script/ci-is-push-and-pr.clj $${ github.event.name }} ${{ github.sha }})" >> $GITHUB_OUTPUT
 
     - name: Does gh cli help at all?
       run: |
