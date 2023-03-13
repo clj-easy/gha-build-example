@@ -39,17 +39,17 @@ jobs:
       id: checks
       env:
         GH_TOKEN: ${{ github.token }}
-      run: echo "push-in-pr=$(bb script/ci-is-push-and-pr.clj ${{ github.event_name }} ${{ github.sha }})" >> $GITHUB_OUTPUT
+      run: echo "push_in_pr=$(bb script/ci-is-push-and-pr.clj ${{ github.event_name }} ${{ github.sha }})" >> $GITHUB_OUTPUT
 
     - name: Does gh cli help at all?
       run: |
-        echo "steps.checks.push-in-pr: ${{ steps.checks.push-in-pr }}"
+        echo "steps.checks.push-in-pr: ${{ steps.checks.outputs.push_in_pr }}"
         echo "Are we on a fork?: ${{ github.event.pull_request.head.repo.fork }}"
         echo "github.event_name: ${{ github.event_name }}"
         echo "github.sha: ${{ github.sha}}"
         echo "pr number? github.event.number ${{ github.event.number }}"
 
     - name: Run tests
-      if: ${{ !steps.checks.push-in-pr }}
+      if: ${{ !steps.checks.outputs.push_in_pr }}
       run: |
         echo "Testing 123"
