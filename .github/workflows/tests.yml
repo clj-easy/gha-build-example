@@ -15,22 +15,17 @@ on:
       - reopened
 
 jobs:
-  test:
-    permissions:
-      pull-requests: read
-
-    # the publish flow commits version changes, we don't want that, on its own, to trigger a test run
-    # but we do need tests to run if invoked by publish
-    if: ${{ startsWith(github.ref, 'refs/tags/v') || !startsWith(github.event.head_commit.message, 'publish:') }}
+  checks:
     runs-on: ubuntu-latest
-
+    outputs:
+      push_in_pr: ${{ steps.checks.outputs.push_in_pr }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - name: Install clojure
+    - name: Install bb
       uses: DeLaGuardo/setup-clojure@10.2
       with:
         bb: 'latest'
@@ -49,7 +44,23 @@ jobs:
         echo "github.sha: ${{ github.sha}}"
         echo "pr number? github.event.number ${{ github.event.number }}"
 
+  test:
+    needs: [checks]
+    permissions:
+      pull-requests: read
+
+    # the publish flow commits version changes, we don't want that, on its own, to trigger a test run
+    # but we do need tests to run if invoked by publish
+    # Not sure if we can reference job output from if, might as well just try it
+    if: ${{ needs.checks.outputs.push_in_pr != 'true' && (startsWith(github.ref, 'refs/tags/v') || !startsWith(github.event.head_commit.message, 'publish:'))}}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
     - name: Run tests
-      if: ${{ steps.checks.outputs.push_in_pr != 'true' }}
       run: |
         echo "Testing 123"
