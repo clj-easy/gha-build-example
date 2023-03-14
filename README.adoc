@@ -48,10 +48,12 @@ Maybe.
 
 TODO:
 1. Currently when merging a PR to master, I'm skipping tests.
-The event is push and th commit is part of PR.
+The event is push and the commit is part of PR.
 So I'd need to tweak that.
 We also want to run tests on PR merge.
 
+1. When opening a PR the commit is not yet part of a PR.
+So duplicate runs occur.
 
 == Build Goals
 
