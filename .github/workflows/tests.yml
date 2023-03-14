@@ -25,6 +25,11 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Set vars
+      id: vars
+      run: |
+
+
     - name: Create check vars
       id: checks
       env:
@@ -34,14 +39,15 @@ jobs:
       # - triggered by push and in pr
       # - commit is part of publish workflow
       # - not invoked by publish
+      # Hmmm... $(echo ${shell-var-name}) is a tad awkard, but hopefully it works...
       run: |
         pr_nums=$(gh search prs ${{ github.sha }} --json number --jq '.[].number')
-        is_in_pr=${{ ${pr_nums} != '' }}
+        is_in_pr=${{ $(echo ${pr_nums}) != '' }}
         is_push=${{ github.event_name == 'push' }}
         ## This workflow ignores tags so we know it was invoked by publish if we see a version tag
         is_invoked_by_publish=${{ (startsWith(github.ref, 'refs/tags/v') }}
         is_publish_commit=${{ startsWith(github.event.head_commit.message, 'publish:')) }}
-        echo "skip_tests=${{ (${is_push} && ${is_in_pr}) || is_publish_commit || !invoked_by_publish }}" >> $GITHUB_OUTPUT
+        echo "skip_tests=${{ ($(echo ${is_push}) && $(echo ${is_in_pr})) || (echo ${is_publish_commit) || !(echo ${invoked_by_publish}) }}" >> $GITHUB_OUTPUT
 
   test:
     needs: [checks]
@@ -51,7 +57,7 @@ jobs:
     # the publish flow commits version changes, we don't want that, on its own, to trigger a test run
     # but we do need tests to run if invoked by publish
     # Not sure if we can reference job output from if, might as well just try it
-    if: ${{ !steps.checks.outputs.skip_tests }}
+    if: !steps.checks.outputs.skip_tests
     runs-on: ubuntu-latest
 
     steps:
