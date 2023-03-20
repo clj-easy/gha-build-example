@@ -35,15 +35,15 @@ jobs:
       id: checks
       env:
         GH_TOKEN: ${{ github.token }}
+        # I'm not sure how to properly share a subset of the github context yet, for now avoid
+        # security and command-line escaping by sharing via env vars
+        EVENT_NAME: $${ github.event_name }
+        REPO: ${{ github.repository }}
+        REF: $${ github.ref }
+        COMMIT_SHA: ${{ github.sha }}
+        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       run: |
-        # TODO: passing on cmd line my lead to escape headaches? We'll shall see
-        echo '${{ toJson(github.event.head_commit) }}'
-        bb script/ci_check_skip_tests.clj \
-          --commit-sha '${{ github.sha }}' \
-          --event-name '${{ github.event_name }}'  \
-          --ref '${{ github.ref }}' \
-          --repo '${{ github.repository }}' \
-          --commit-message '${{ github.event.head_commit.message }}'
+        bb script/ci_check_skip_tests.clj
 
   test:
     needs: [checks]

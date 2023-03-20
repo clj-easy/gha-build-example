@@ -1,5 +1,4 @@
-(require '[babashka.cli :as cli]
-         '[babashka.tasks :as t]
+(require '[babashka.tasks :as t]
          '[cheshire.core :as json]
          '[clojure.string :as str])
 
@@ -37,12 +36,24 @@
                 :event-name {:desc "github.event_name"}
                 :commit-message {:desc "current commit message"}
                 :ref {:desc "github.ref"}
-                :repo {:desc "our github repository org/repo"}}
-               (reduce-kv (fn [m k v]
-                            (assoc m k (assoc v :require true))) {})))
+                :repo {:desc "our github repository org/repo"}}))
 
-(defn -main [& args]
-  (ci-write-skip-tests-var (cli/parse-opts args {:spec spec})))
+(defn args-from-env []
+  (reduce-kv (fn [m k {:keys [desc]}]
+               (let [env-var (-> k
+                                 name
+                                 str/upper-case
+                                 (str/replace "-" "_"))
+                     env-value (System/getenv env-var)]
+                 (if (not env-value)
+                   (throw (ex-info (format "env-var %s required, desc: %s" env-var desc) {}))
+                   (assoc m k env-value))
+                 ))
+             {}
+             spec))
+
+(defn -main [& _args]
+  (ci-write-skip-tests-var (args-from-env)))
 
 (when (= *file* (System/getProperty "babashka.file"))
   (apply -main *command-line-args*))
