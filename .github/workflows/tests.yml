@@ -37,6 +37,8 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: |
         # TODO: passing on cmd line my lead to escape headaches? We'll see
+        #
+        echo ${{ toJson(github.event.head_commit) }}
         bb script/ci_check_skip_tests.clj \
           --commit-sha '${{ github.sha }}' \
           --event-name '${{ github.event_name }}'  \
