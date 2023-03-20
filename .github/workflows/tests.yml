@@ -22,37 +22,30 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+      # TODO: needed?
       with:
         fetch-depth: 0
 
-    - name: Set vars
-      id: vars
-      run: |
-
+    - name: Install Babashka
+      uses: DeLaGuardo/setup-clojure@10.2
+      with:
+        bb: 'latest'
 
     - name: Create check vars
       id: checks
       env:
         GH_TOKEN: ${{ github.token }}
-      # TODO: check: if gh fails, we want this all to fail,
-      # Skip tests when any of:
-      # - triggered by push and in pr
-      # - commit is part of publish workflow
-      # - not invoked by publish
-      # Hmmm... $(echo ${shell-var-name}) is a tad awkard, but hopefully it works...
       run: |
-        pr_nums=$(gh search prs ${{ github.sha }} --json number --jq '.[].number')
-        is_in_pr=${{ $(echo ${pr_nums}) != '' }}
-        is_push=${{ github.event_name == 'push' }}
-        ## This workflow ignores tags so we know it was invoked by publish if we see a version tag
-        is_invoked_by_publish=${{ (startsWith(github.ref, 'refs/tags/v') }}
-        is_publish_commit=${{ startsWith(github.event.head_commit.message, 'publish:')) }}
-        echo "skip_tests=${{ ($(echo ${is_push}) && $(echo ${is_in_pr})) || (echo ${is_publish_commit) || !(echo ${invoked_by_publish}) }}" >> $GITHUB_OUTPUT
+        # TODO: passing on cmd line my lead to escape headaches? We'll see
+        bb script/ci_check_skip_tests.clj \
+          --commit-sha '${{ github.sha }}' \
+          --event-name '${{ github.event_name }}'  \
+          --ref '${{ github.ref }}' \
+          --repo '${{ github.repository }}' \
+          --commit-headline '${{ github.event.head_commit.messageHeadline }}'
 
   test:
     needs: [checks]
-    permissions:
-      pull-requests: read
 
     # the publish flow commits version changes, we don't want that, on its own, to trigger a test run
     # but we do need tests to run if invoked by publish
