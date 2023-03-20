@@ -20,8 +20,10 @@ I removed `synchronize` from `pull_request` and this gives desired test workflow
 But for forks, tests are run on the fork only and not as checks for PR.
 
 So it seems we'd like:
-- please run tests on fork if not PRed yet.
-- please run tests on PR if PRed. No need to run them on fork.
+
+* please run tests on fork if not PRed yet.
+* please run tests on PR if PRed. No need to run them on fork.
+
 Can we express that?
 I think we need to restore `synchronize` `pull_request` activity.
 
@@ -47,13 +49,19 @@ Does GitHub Actions allow for that?
 Maybe.
 
 TODO:
+
 1. Currently when merging a PR to master, I'm skipping tests.
 The event is push and the commit is part of PR.
 So I'd need to tweak that.
 We also want to run tests on PR merge.
-
-1. When opening a PR the commit is not yet part of a PR.
+2. When opening a PR the commit is not yet part of a PR.
 So duplicate runs occur.
+3. In my testing I got occassional 403 errors, indicating rate limiting.
++
+> You have exceeded a secondary rate limit. Please wait a few minutes before you try again.
++
+Not sure if this is an artifact of using `gh`.
+Or just me pushing frequently.
 
 == Build Goals
 
