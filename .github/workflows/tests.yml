@@ -37,9 +37,9 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         # I'm not sure how to properly share a subset of the github context yet, for now avoid
         # security and command-line escaping by sharing via env vars
-        EVENT_NAME: $${ github.event_name }
+        EVENT_NAME: ${{ github.event_name }}
         REPO: ${{ github.repository }}
-        REF: $${ github.ref }
+        REF: ${{ github.ref }}
         COMMIT_SHA: ${{ github.sha }}
         COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       run: |
