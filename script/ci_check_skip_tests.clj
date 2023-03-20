@@ -7,7 +7,7 @@
   "Determine if tests should be skipped and write result to GITHUB_OUTPUT skip_tests var
 
   Written babashka for conciseness and maintainability."
-  [{:keys [commit-sha event-name commit-headline ref repo] :as github}]
+  [{:keys [commit-sha event-name commit-message ref repo] :as github}]
   (let [prs (-> (t/shell {:out :string
                           :extra-env {"PAGER" "cat"}}
                          "gh search prs" commit-sha "--json" "number" "--repo" repo)
@@ -16,7 +16,7 @@
                 doall)
         is-in-pr (boolean (seq prs))
         is-pushing (= "push" event-name)
-        is-publish-commit (str/starts-with? commit-headline "publish:")
+        is-publish-commit (str/starts-with? commit-message "publish:")
         is-version-tag (str/starts-with? ref "ref/tags/v")
         skip-tests (or (not is-version-tag) ;; indicates invocation from publish, so allow tests to run
                        is-publish-commit ;; no need to run tests for commit that is part of publish flow
@@ -35,7 +35,7 @@
 
 (def spec (->> {:commit-sha {:desc "git commit sha, used to determine if in PR"}
                 :event-name {:desc "github.event_name"}
-                :commit-headline {:desc "current commit headline"}
+                :commit-message {:desc "current commit message"}
                 :ref {:desc "github.ref"}
                 :repo {:desc "our github repository org/repo"}}
                (reduce-kv (fn [m k v]
