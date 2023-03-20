@@ -2,11 +2,7 @@
          '[cheshire.core :as json]
          '[clojure.string :as str])
 
-(defn ci-write-skip-tests-var
-  "Determine if tests should be skipped and write result to GITHUB_OUTPUT skip_tests var
-
-  Written babashka for conciseness and maintainability."
-  [{:keys [commit-sha event-name commit-message ref repo] :as github}]
+(defn is-pushing-in-pr [{:keys [commit-sha event-name]}]
   (let [prs (-> (t/shell {:out :string
                           :extra-env {"PAGER" "cat"}}
                          "gh search prs" commit-sha "--json" "number" "--repo" repo)
@@ -14,17 +10,23 @@
                 (json/parse-string true)
                 doall)
         is-in-pr (boolean (seq prs))
-        is-pushing (= "push" event-name)
-        is-publish-commit (str/starts-with? commit-message "publish:")
-        is-version-tag (str/starts-with? ref "ref/tags/v")
-        is-pushing-in-pr (and is-pushing is-in-pr)
-        run-tests (or is-version-tag
-                      (and (not is-publish-commit)
-                           (not is-pushing-in-pr)))]
-    (println "inputs:" (pr-str github))
+        is-pushing (= "push" event-name)]
     (println "prs:" (pr-str prs))
     (println "is-in-pr" is-in-pr)
     (println "is-pushing" is-pushing)
+    (and is-pushing is-in-pr)))
+
+(defn ci-write-skip-tests-var
+  "Determine if tests should be skipped and write result to GITHUB_OUTPUT skip_tests var
+
+  Written babashka for conciseness and maintainability."
+  [{:keys [commit-message ref] :as github}]
+  (let [is-publish-commit (str/starts-with? commit-message "publish:")
+        is-version-tag (str/starts-with? ref "ref/tags/v")
+        run-tests (or is-version-tag
+                      (and (not is-publish-commit)
+                           (not (is-pushing-in-pr github))))]
+    (println "inputs:" (pr-str github))
     (println "is-publish-commit" is-publish-commit)
     (println "is-version-tag" is-version-tag)
     (println "run-tests" run-tests)
