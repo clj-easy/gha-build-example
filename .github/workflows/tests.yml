@@ -18,7 +18,7 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     outputs:
-      skip_tests: $${ steps.checks.outputs.skip_tests }
+      run_tests: $${ steps.checks.outputs.run_tests }
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -49,7 +49,7 @@ jobs:
     needs: [checks]
     # the publish flow commits version changes, we don't want that, on its own, to trigger a test run
     # but we do need tests to run if invoked by publish
-    if: ${{ !needs.checks.outputs.run_tests }}
+    if: ${{ needs.checks.outputs.run_tests }}
     runs-on: ubuntu-latest
 
     steps:
