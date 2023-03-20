@@ -17,19 +17,19 @@
         is-pushing (= "push" event-name)
         is-publish-commit (str/starts-with? commit-message "publish:")
         is-version-tag (str/starts-with? ref "ref/tags/v")
-        skip-tests (or (not is-version-tag) ;; indicates invocation from publish, so allow tests to run
-                       is-publish-commit ;; no need to run tests for commit that is part of publish flow
-                       (and is-pushing is-in-pr) ;; tests will be triggered pull_request synchronize, no need to duplicate the effort
-                       )]
+        run-tests (or is-version-tag ;; indicates invocation from publish, so allow tests to run
+                      (not is-publish-commit) ;; no need to run tests for commit that is part of publish flow
+                      (not (and is-pushing is-in-pr)) ;; tests will be triggered pull_request synchronize, no need to duplicate the effort
+                      )]
     (println "inputs:" (pr-str github))
     (println "prs:" (pr-str prs))
     (println "is-in-pr" is-in-pr)
     (println "is-pushing" is-pushing)
     (println "is-publish-commit" is-publish-commit)
     (println "is-version-tag" is-version-tag)
-    (println "skip-tests" skip-tests)
+    (println "run-tests" run-tests)
     (if-let [out-file (System/getenv "GITHUB_OUTPUT")]
-      (spit out-file (str "skip_tests=" skip-tests) :append true)
+      (spit out-file (str "run_tests=" run-tests) :append true)
       (throw (ex-info "GITHUB_OUTPUT env var not found" {})))))
 
 (def spec (->> {:commit-sha {:desc "git commit sha, used to determine if in PR"}

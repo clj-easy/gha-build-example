@@ -31,7 +31,7 @@ jobs:
       with:
         bb: 'latest'
 
-    - name: Create check vars
+    - name: Checks
       id: checks
       env:
         GH_TOKEN: ${{ github.token }}
@@ -43,13 +43,13 @@ jobs:
         COMMIT_SHA: ${{ github.sha }}
         COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
       run: |
-        bb script/ci_check_skip_tests.clj
+        bb script/ci_create_check_vars.clj
 
   test:
     needs: [checks]
     # the publish flow commits version changes, we don't want that, on its own, to trigger a test run
     # but we do need tests to run if invoked by publish
-    if: ${{ !needs.checks.outputs.skip_tests }}
+    if: ${{ !needs.checks.outputs.run_tests }}
     runs-on: ubuntu-latest
 
     steps:
