@@ -18,7 +18,7 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     outputs:
-      run_tests: $${ steps.checks.outputs.run_tests }
+      run_tests: ${{ steps.checks.outputs.run_tests }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
