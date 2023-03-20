@@ -2,7 +2,7 @@
          '[cheshire.core :as json]
          '[clojure.string :as str])
 
-(defn is-pushing-in-pr [{:keys [commit-sha event-name]}]
+(defn is-pushing-in-pr [{:keys [commit-sha event-name repo]}]
   (let [prs (-> (t/shell {:out :string
                           :extra-env {"PAGER" "cat"}}
                          "gh search prs" commit-sha "--json" "number" "--repo" repo)
