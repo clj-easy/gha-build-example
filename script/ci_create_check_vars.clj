@@ -17,10 +17,10 @@
         is-pushing (= "push" event-name)
         is-publish-commit (str/starts-with? commit-message "publish:")
         is-version-tag (str/starts-with? ref "ref/tags/v")
-        run-tests (or is-version-tag ;; indicates invocation from publish, so allow tests to run
-                      (not is-publish-commit) ;; no need to run tests for commit that is part of publish flow
-                      (not (and is-pushing is-in-pr)) ;; tests will be triggered pull_request synchronize, no need to duplicate the effort
-                      )]
+        is-pushing-in-pr (and is-pushing is-in-pr)
+        run-tests (or is-version-tag
+                      (and (not is-publish-commit)
+                           (not is-pushing-in-pr)))]
     (println "inputs:" (pr-str github))
     (println "prs:" (pr-str prs))
     (println "is-in-pr" is-in-pr)
