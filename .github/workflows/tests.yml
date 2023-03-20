@@ -43,7 +43,7 @@ jobs:
           --event-name '${{ github.event_name }}'  \
           --ref '${{ github.ref }}' \
           --repo '${{ github.repository }}' \
-          --commit-message '${{ github.event.head_commit.messageHeadline }}'
+          --commit-message '${{ github.event.head_commit.message }}'
 
   test:
     needs: [checks]
