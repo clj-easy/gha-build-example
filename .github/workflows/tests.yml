@@ -15,13 +15,41 @@ on:
       - reopened
 
 jobs:
-  test:
-    permissions:
-      pull-requests: read
+  checks:
+    runs-on: ubuntu-latest
+    outputs:
+      run_tests: ${{ steps.checks.outputs.run_tests }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      # TODO: needed?
+      with:
+        fetch-depth: 0
 
+    - name: Install Babashka
+      uses: DeLaGuardo/setup-clojure@10.2
+      with:
+        bb: 'latest'
+
+    - name: Checks
+      id: checks
+      env:
+        GH_TOKEN: ${{ github.token }}
+        # I'm not sure how to properly share a subset of the github context yet, for now avoid
+        # security and command-line escaping by sharing via env vars
+        EVENT_NAME: ${{ github.event_name }}
+        REPO: ${{ github.repository }}
+        REF: ${{ github.ref }}
+        COMMIT_SHA: ${{ github.sha }}
+        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+      run: |
+        bb script/ci_create_check_vars.clj
+
+  test:
+    needs: [checks]
     # the publish flow commits version changes, we don't want that, on its own, to trigger a test run
     # but we do need tests to run if invoked by publish
-    if: ${{ startsWith(github.ref, 'refs/tags/v') || !startsWith(github.event.head_commit.message, 'publish:') }}
+    if: ${{ needs.checks.outputs.run_tests == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -30,26 +58,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install clojure
-      uses: DeLaGuardo/setup-clojure@10.2
-      with:
-        bb: 'latest'
-
-    - name: pr numbers
-      id: checks
-      env:
-        GH_TOKEN: ${{ github.token }}
-      run: echo "push_in_pr=$(bb script/ci-is-push-and-pr.clj ${{ github.event_name }} ${{ github.sha }})" >> $GITHUB_OUTPUT
-
-    - name: Does gh cli help at all?
-      run: |
-        echo "steps.checks.push-in-pr: ${{ steps.checks.outputs.push_in_pr }}"
-        echo "Are we on a fork?: ${{ github.event.pull_request.head.repo.fork }}"
-        echo "github.event_name: ${{ github.event_name }}"
-        echo "github.sha: ${{ github.sha}}"
-        echo "pr number? github.event.number ${{ github.event.number }}"
-
     - name: Run tests
-      if: ${{ steps.checks.outputs.push_in_pr != 'true' }}
       run: |
         echo "Testing 123"
