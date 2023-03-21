@@ -71,6 +71,7 @@ So I'd need to tweak that.
 We also want to run tests on PR merge (unless we get very smart and know that they do not need to be rerun see experiment 3).
 2. When opening a PR the commit is not yet part of a PR.
 So duplicate runs occur.
+Anything we can do that would work for both local branch and fork?
 3. In my testing I got occassional 403 errors, indicating rate limiting.
 +
 > You have exceeded a secondary rate limit. Please wait a few minutes before you try again.
