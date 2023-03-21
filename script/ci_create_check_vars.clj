@@ -2,10 +2,10 @@
          '[cheshire.core :as json]
          '[clojure.string :as str])
 
-(defn is-pushing-in-pr [{:keys [commit-sha event-name repo]}]
+(defn is-pushing-in-open-pr [{:keys [commit-sha event-name repo]}]
   (let [prs (-> (t/shell {:out :string
                           :extra-env {"PAGER" "cat"}}
-                         "gh search prs" commit-sha "--json" "number" "--repo" repo)
+                         "gh search prs" commit-sha "--state" "open" "--json" "number" "--repo" repo)
                 :out
                 (json/parse-string true)
                 doall)
@@ -25,7 +25,7 @@
         is-version-tag (str/starts-with? ref "ref/tags/v")
         run-tests (or is-version-tag
                       (and (not is-publish-commit)
-                           (not (is-pushing-in-pr github))))]
+                           (not (is-pushing-in-open-pr github))))]
     (println "inputs:" (pr-str github))
     (println "is-publish-commit" is-publish-commit)
     (println "is-version-tag" is-version-tag)
