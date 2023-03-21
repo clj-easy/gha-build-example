@@ -1,54 +1,67 @@
 = GHA Build Example
+:toc:
+:toclevels: 5
 
 A place to experiment with getting GitHub Actions to build like we'd like it to.
 If successful, we might even leave this repo around as an example/reference for those with similar build tastes.
 
-== Current Snags
+== Goals
 
-=== GHA must be enabled for forks
+. *Run tests on pushes everywhere*.
+Forks or not.
+This will allow folks to verity their work before submitting PRs.
+. *Avoid duplicate runs of same work*
+.. *Avoid confusion*.
+A specific case that is especially annoying is that when goal 1 is enabled, we get a duplicate test run for a push to a PR.
+These duplicate runs are both registered as checks for the PR.
+.. *Avoid unecessary compute*. The planet is suffering, we don't want to make it suffer more.
+. *Trigger release on new version tag*.
+Again, without duplication of work.
+
+== Current Status - Experimenting
+I don't think GitHub Actions was designed with care for this combination of goals.
+
+Can we bend it to our will?
+Or is this a quixotic whack-a-mole situation?
+
+== Notes
+
+=== GitHub Actions must be enabled for forks
 GitHub Actions must be enabled by the user for forks.
-
-Problematic? Dunno, maybe, maybe not, but good to note.
-
 Our premise that folks are typically using GHA on forks to verify before submitting PRs might be incorrect.
 But that does not invalidate our approach.
 They could be using GHA on forks.
 If they want to.
 
-=== Removing `synchronize` from `pull_request` does not work for forked PRs
-I removed `synchronize` from `pull_request` and this gives desired test workflow triggering for local branches/PRs.
+=== GitHub Actions trigger Granularity
+
+GitHub actions allows some control over what invokes a workflow.
+But some controls are only available at the job level within a workflow.
+So sometimes we'll trigger a workflow but skip all the jobs in that workflow.
+Just because that's the way GitHub Actions currenltly works.
+
+== Experiments
+
+=== De-duplicate test runs for PR push
+
+==== FAILED: Experiment 1: Do not trigger tests for pull-request synchronize.
+
+The idea is that duplicate tests runs are being triggered by the following events:
+- `push`
+- `pull_request`'s `synchronize` activity
+
+If we remove `synchronize` activity, would this do the trick?
+
+No.
+This works for PRs created from branches off the repository.
 But for forks, tests are run on the fork only and not as checks for PR.
 
-So it seems we'd like:
+==== IN-PROGRESS: Experiment 2: De-duplicate test runs for PR push - suppress push trigger if in PR
 
-* please run tests on fork if not PRed yet.
-* please run tests on PR if PRed. No need to run them on fork.
-
-Can we express that?
-I think we need to restore `synchronize` `pull_request` activity.
-
-So what are asking for, really?
-If a PR has been opened we do not need a duplicate test run.
-For a forked PR, the PR checks seem to need to be from pull_request synchronize.
-For a local branch PR, the PR checks are corallated (and duplicated) from pull_request synchronize and push.
-
-Instead of removing `synchronize` can we suppress the `push` trigger when in a PR?
-
-Maybe.
+If we can check that a commit is in a PR for a `push` event, can we simply supress the running of tests?
 
 I can use `gh`, the github command line tool to search if the current commit sha is part of a PR.
 So if the triggering event is `push` and the sha is in a PR, tests should be skipped.
-
-I've tried doing this at the step level.
-Ex. Job step 1 sets a var that step 2 consults to determine if it should run.
-
-This is interesting but working at the step level is not terribly useful.
-Next up: I'll try skipping at the job level.
-Does GitHub Actions allow for that?
-
-Maybe.
-
-== TODO
 
 Look into:
 
@@ -65,18 +78,42 @@ So duplicate runs occur.
 Not sure if this is an artifact of using `gh`.
 Or just me pushing frequently.
 
-== Build Goals
+==== NOT-STARTED: Experiment 3: De-duplicate work in general - try out skip-duplicate-actions
 
-We want tests to be run on pushes everywhere (forks or not) so that folks can verify their work before submitting PRs.
-When it comes time to publish a release, we want that to be triggered on a version tag.
+While researching I stumbled upon https://github.com/fkirc/skip-duplicate-actions.
+This might be a good general solution to avoid duplicate work.
+
+If I understand it correctly, it goes even further than I was thinking.
+
+It can, for example, avoid re-running tests on merge that were just successfully run as part of a PR, if all files are identical.
+I suppose it could be smart enough to skip those tests on release as well.
+
+Another scenario it handles is cancelling running jobs if a new job run is launched.
+This can happen for long-running jobs that have not completed before a new commit is pushed.
+Apparently https://docs.github.com/en/actions/using-jobs/using-concurrency#example-only-cancel-in-progress-jobs-or-runs-for-the-current-workflow[GitHub Actions itself now has some support for this scenario].
+
+Probably worth a try.
+
+== To consider
+
+=== Do we need to re-run tests on release?
+We think that tests should be run on release.
+But why? If they were already successfully run, why do we need to repeat them?
+
+* To double-check?
+* To handle case where a PR was merged that had failing tests?
+* To handle the case where the environment/os/build-tools might have changed since the same tests were last run?
+
+== Test Scenarios
 
 Trigger tests for:
 
-* push to master or any other branch [verified]
-* push to fork of this repo [gha must be enabled for fork]
+* push to master or any other branch
+* push to fork of this repo
 * push to PR
-** from local branch [verified]
-** from fork [nope, does not work, runs tests on fork, but does not run tests as checks for PR]
+** from local branch
+** from fork
+* a release
 
 Some specific desired behaviour:
 
@@ -84,30 +121,5 @@ Some specific desired behaviour:
 We need the tests to be perceived by GitHub as checks for the PR.
 2. On publish, triggered by a version tag push, trigger a test run, then follow that up with a release work.
 An additional test run should not be triggered here.
+Any commit solely related to publishing should not trigger a test run (i.e. version bumps).
 3. Publish work should not be executed when on a fork.
-
-Notes:
-
-GitHub actions allows some control over what invokes a workflow.
-But some controls are only available at the job level within a workflow.
-So sometimes we'll trigger a workflow but skip all the jobs in that workflow.
-Just because that's the way GitHub Actions currenltly works.
-
-The duplicate test run on PR is uglier when the PR is from a local branch.
-In this case both test runs are attached as checks to the PR.
-
-If the PR is from a fork, we still have the duplicate test run, but the fork test run is not part of the checks.
-
-We can determine if GHA is running from a fork via: `github.event.pull_request.head.repo.fork`.
-Not sure if this will be helpful.
-
-Scenarios:
-
-A commit push should trigger tests. No need to explain more here.
-
-An automated publish commit push (one that bumps version in files) should not trigger tests.
-The automation will use the convention of starting commit messages with `publish:`.
-
-A automated publish version tag push should trigger the publish workflow, which should trigger tests workflow.
-The version tag should not directly trigger a tests flow.
-Version tag convention is to start tag with `v`.
